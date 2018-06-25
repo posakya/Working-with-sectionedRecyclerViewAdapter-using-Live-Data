@@ -17,6 +17,7 @@ import com.listandsell.dynamicrecyclerview.model_class.IndividualProductModelCla
 import com.listandsell.dynamicrecyclerview.model_class.Products;
 import com.listandsell.dynamicrecyclerview.retrofit_api_client.RetrofitClient;
 import com.listandsell.dynamicrecyclerview.retrofit_api_interface.ApiInterface;
+import com.listandsell.dynamicrecyclerview.sectioned_recylerview_adapter.RecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
                 List<Categories> categories = response.body().getCategories();
 
+                System.out.println("Category : "+categories);
+
                 for (Categories categories1 : categories){
 
                     ////// passing category name to getIndividualProduct method ///////
@@ -104,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 //// checking the category name
 
                 if (response.body().getCategory().equals(category)){
-                    sectionAdapter.addSection(new ContactSection(title,IndViaductsList1));
+                    sectionAdapter.addSection(new RecyclerViewAdapter(getApplicationContext(),title,IndViaductsList1));
                 }
 
 
@@ -125,10 +128,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 recyclerView.setLayoutManager(glm);
+                recyclerView.setHasFixedSize(true);
+
+
 
                 ///////// horizontal scroll view method //////////
-//                LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
+                LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
 //                recyclerView.setLayoutManager(horizontalLayoutManager);
+
+            //   horizontalLayoutManager.canScrollHorizontally();
+
 
                // recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this,2));
 
@@ -147,99 +156,5 @@ public class MainActivity extends AppCompatActivity {
         return individualProductList;
     }
 
-    ///////// dynamic recycler view with headers
-    private class ContactSection extends StatelessSection{
 
-        String title;
-        List<Products> list;
-
-        ContactSection(String title, List<Products> list) {
-            super(SectionParameters.builder()
-                    .itemResourceId(R.layout.section_ex1_item)
-                    .headerResourceId(R.layout.section_ex1_header)
-                    .build());
-
-            this.title = title;
-            this.list = list;
-        }
-
-        @Override
-        public int getContentItemsTotal() {
-            return list.size();
-        }
-
-
-        @Override
-        public RecyclerView.ViewHolder getItemViewHolder(View view) {
-            //////// return a custom instance of ViewHolder for the items of this section
-
-            return new ItemViewHolder(view);
-        }
-
-        @Override
-        public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
-
-
-            // bind your view here
-                final ItemViewHolder itemHolder = (ItemViewHolder) holder;
-
-                Products products = list.get(position);
-
-                itemHolder.tvItem.setText(products.getProduct_code());
-                Glide.with(getApplicationContext()).load(products.getProduct_image().replaceAll("localhost:8000","192.168.2.1:81")).into(itemHolder.imgItem);
-
-                itemHolder.rootView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(MainActivity.this, (sectionAdapter.getPositionInSection(itemHolder.getAdapterPosition())), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-        @Override
-        public RecyclerView.ViewHolder getHeaderViewHolder(View view) {
-            //////// return a custom instance of ViewHolder for the header of this section
-            return new HeaderViewHolder(view);
-        }
-
-
-        @Override
-        public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder) {
-
-            // bind your header view here
-            HeaderViewHolder headerHolder = (HeaderViewHolder) holder;
-
-
-            headerHolder.tvTitle.setText(title);
-        }
-    }
-
-    ///// creating class for Items
-
-    class ItemViewHolder extends RecyclerView.ViewHolder{
-
-        private final View rootView;
-        private final ImageView imgItem;
-        private final TextView tvItem;
-
-        ItemViewHolder(View view) {
-            super(view);
-
-            rootView = view;
-            imgItem = (ImageView) view.findViewById(R.id.imgItem);
-            tvItem = (TextView) view.findViewById(R.id.tvItem);
-        }
-    }
-
-    ///// creating class for header
-    class HeaderViewHolder extends RecyclerView.ViewHolder{
-
-        private final TextView tvTitle;
-
-        HeaderViewHolder(View view) {
-            super(view);
-
-            tvTitle = (TextView) view.findViewById(R.id.tvTitle);
-        }
-    }
 }
