@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 ///////// horizontal scroll view method //////////
-                LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
+              //  LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
 //                recyclerView.setLayoutManager(horizontalLayoutManager);
 
             //   horizontalLayoutManager.canScrollHorizontally();
