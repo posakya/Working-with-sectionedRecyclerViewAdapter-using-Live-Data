@@ -156,6 +156,22 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 recyclerView.setLayoutManager(glm);
                 recyclerView.setHasFixedSize(true);
 
+<<<<<<< HEAD
+=======
+
+
+                ///////// horizontal scroll view method //////////
+              //  LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
+//                recyclerView.setLayoutManager(horizontalLayoutManager);
+
+            //   horizontalLayoutManager.canScrollHorizontally();
+
+
+               // recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this,2));
+
+
+                ////// setting section adapter in recyclerview adapter
+>>>>>>> 4a629f89d69e9a6cd3c39da5af50250743a4ee75
                 recyclerView.setAdapter(sectionAdapter);
                 sectionAdapter.notifyDataSetChanged();
 
