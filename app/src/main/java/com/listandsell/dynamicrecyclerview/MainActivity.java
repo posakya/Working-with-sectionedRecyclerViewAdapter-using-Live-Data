@@ -1,14 +1,11 @@
 package com.listandsell.dynamicrecyclerview;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.listandsell.dynamicrecyclerview.model_class.Categories;
@@ -22,18 +19,22 @@ import com.listandsell.dynamicrecyclerview.sectioned_recylerview_adapter.Recycle
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
-import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
+
     private SectionedRecyclerViewAdapter sectionAdapter;
 
-    List<Products> individualProductList = new ArrayList<>();
     String title;
+    String category;
+    SwipeRefreshLayout swipe_to_refresh;
+    List<Products> individualProductList = new ArrayList<>();
+    List<Categories> categories1 = new ArrayList<>();
+    List<Categories> categories;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +44,29 @@ public class MainActivity extends AppCompatActivity {
 
         sectionAdapter = new SectionedRecyclerViewAdapter();
 
-        //// call getData method to parse the json data
-        getData();
+
+        swipe_to_refresh = findViewById(R.id.swipe_to_refresh);
+
+        swipe_to_refresh.setOnRefreshListener(this);
+        swipe_to_refresh.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+
+        swipe_to_refresh.post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                swipe_to_refresh.setRefreshing(true);
+
+                getData();
+            }
+        });
+
+        swipe_to_refresh.setRefreshing(true);
+
+
 
     }
 
@@ -60,18 +82,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<CategoryModelClass> call, Response<CategoryModelClass> response) {
 
-                List<Categories> categories = response.body().getCategories();
 
-                System.out.println("Category : "+categories);
+                categories = response.body().getCategories();
 
-                for (Categories categories1 : categories){
+                System.out.println("Category : "+categories.size());
 
-                    ////// passing category name to getIndividualProduct method ///////
-                    getIndividualProduct(categories1.getCategory());
+                for (Categories categories2 : categories){
+
+                    System.out.println("CategoryName : "+categories2.getCategory());
+
+                    getIndividualProduct(categories2.getCategory());
+
 
                 }
 
             }
+
 
             @Override
             public void onFailure(Call<CategoryModelClass> call, Throwable t) {
@@ -84,31 +110,30 @@ public class MainActivity extends AppCompatActivity {
     /////// get Individual list from server /////////////
 
     public List<Products> getIndividualProduct(final String category){
+
+      //  individualProductList = new ArrayList<>();
+
+        final List<Products> individualProductList = new ArrayList<>();
+
         ApiInterface productInterface = RetrofitClient.getFormData().create(ApiInterface.class);
+
         Call<IndividualProductModelClass> productModelClassCall = productInterface.getIndividualProduct(category);
 
         productModelClassCall.enqueue(new Callback<IndividualProductModelClass>() {
             @Override
             public void onResponse(Call<IndividualProductModelClass> call, Response<IndividualProductModelClass> response) {
 
+
                 List<Products> IndViaductsList1 = response.body().getProducts();
 
                 for (Products products : IndViaductsList1){
                     if (products.getCategory().equals(category)){
-
                         individualProductList.add(products);
-
-                        title = products.getCategory();
-
                     }
-
                 }
 
-                //// checking the category name
 
-                if (response.body().getCategory().equals(category)){
-                    sectionAdapter.addSection(new RecyclerViewAdapter(getApplicationContext(),title,IndViaductsList1));
-                }
+                sectionAdapter.addSection(new RecyclerViewAdapter(getApplicationContext(),category,IndViaductsList1));
 
 
                 ///// recycler view defining
@@ -127,23 +152,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+
                 recyclerView.setLayoutManager(glm);
                 recyclerView.setHasFixedSize(true);
 
-
-
-                ///////// horizontal scroll view method //////////
-                LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false);
-//                recyclerView.setLayoutManager(horizontalLayoutManager);
-
-            //   horizontalLayoutManager.canScrollHorizontally();
-
-
-               // recyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this,2));
-
-
-                ////// setting section adapter in recyclerview adapter
                 recyclerView.setAdapter(sectionAdapter);
+                sectionAdapter.notifyDataSetChanged();
+
+                swipe_to_refresh.setRefreshing(false);
 
             }
 
@@ -157,4 +173,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onRefresh() {
+
+            categories1.clear();
+            individualProductList.clear();
+       getData();
+
+    }
 }

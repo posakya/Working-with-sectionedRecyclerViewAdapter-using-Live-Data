@@ -3,6 +3,7 @@ package com.listandsell.dynamicrecyclerview.sectioned_recylerview_adapter;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,6 +13,7 @@ import com.listandsell.dynamicrecyclerview.MainActivity;
 import com.listandsell.dynamicrecyclerview.R;
 import com.listandsell.dynamicrecyclerview.model_class.Products;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
@@ -37,6 +39,8 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
         @Override
         public int getContentItemsTotal() {
+
+            System.out.println("ListSize : "+list.size());
             return list.size();
         }
 
@@ -54,6 +58,8 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
             // bind your view here
             final ItemViewHolder itemHolder = (ItemViewHolder) holder;
+
+
 
             Products products = list.get(position);
 
@@ -81,8 +87,8 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
             // bind your header view here
             HeaderViewHolder headerHolder = (HeaderViewHolder) holder;
 
+                headerHolder.tvTitle.setText(title);
 
-            headerHolder.tvTitle.setText(title);
         }
 
         ///// creating class for Items
